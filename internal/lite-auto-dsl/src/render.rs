@@ -10,13 +10,13 @@ pub fn render(file: impl AsRef<Path>, symbols: ImportResult) {
 
     let mut s = String::new();
     for (original_name, struct_) in symbols.struct_classes {
-        let struct_name = struct_.class_name;
-        let mut fields = String::new();
+        let ty_name = struct_.class_name;
+        let mut items = String::new();
         for field in struct_.fields {
             let field_name = field.name;
             let field_ty = ty_to_rs(&field.ty);
             write!(
-                fields,
+                items,
                 "
                 pub {field_name}: {field_ty},
             "
@@ -26,20 +26,43 @@ pub fn render(file: impl AsRef<Path>, symbols: ImportResult) {
         write!(
             &mut s,
             r###"
-            pub struct {struct_name}
-            {{{fields}
+            pub struct {ty_name}
+            {{{items}
+            }}
+            "###,
+        )
+        .unwrap();
+    }
+    for (original_name, adt_) in symbols.adt_classes {
+        let ty_name = adt_.class_name;
+        let mut items = String::new();
+        for field in adt_.children {
+            let field_name = field.name;
+            let field_ty = ty_to_rs(&field.ty);
+            write!(
+                fields,
+                "
+                {field_name}(Lite{field_ty}),
+            "
+            )
+            .unwrap();
+        }
+        write!(
+            &mut s,
+            r###"
+            pub struct {ty_name}
+            {{{items}
             }}
             "###,
         )
         .unwrap();
     }
     fs::write(file, s).unwrap();
-    todo!()
 }
 
 fn ty_to_rs(ty: &DataType) -> String {
     match ty {
-        DataType::UnresolvedClass(it) => todo!("{:?}", it),
+        DataType::UnresolvedClass(it) => format!("Lite{}", it),
         DataType::Unit => todo!(),
         DataType::Bool => todo!(),
         DataType::Byte => todo!(),

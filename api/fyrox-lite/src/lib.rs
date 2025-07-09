@@ -1,3 +1,6 @@
+mod generated;
+pub use generated::*;
+
 pub mod lite_color;
 pub mod lite_ctx;
 pub mod lite_input;
