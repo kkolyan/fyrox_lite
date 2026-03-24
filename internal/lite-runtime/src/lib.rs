@@ -14,17 +14,17 @@ pub mod spi;
 #[macro_export]
 macro_rules! reflect_base_lite {
     () => {
-        fn query_derived_types(&self) -> &'static [core::any::TypeId] {
-            Self::derived_types()
-        }
+        // fn query_derived_types(&self) -> &'static [core::any::TypeId] {
+        //     Self::derived_types()
+        // }
 
-        fn derived_types() -> &'static [core::any::TypeId] {
-            &[]
-        }
+        // fn derived_types() -> &'static [core::any::TypeId] {
+        //     &[]
+        // }
 
-        fn try_clone_box(&self) -> Option<Box<dyn Reflect>> {
-            Some(Box::new(self.clone()))
-        }
+        // fn try_clone_box(&self) -> Option<Box<dyn Reflect>> {
+        //     Some(Box::new(self.clone()))
+        // }
     };
 }
 #[macro_export]
@@ -56,16 +56,20 @@ macro_rules! wrapper_reflect {
             self.$ident.doc()
         }
 
-        fn fields_ref(&self, func: &mut dyn FnMut(&[FieldRef])) {
-            self.$ident.fields_ref(func)
+        fn fields_info(&self, func: &mut dyn FnMut(&[FieldInfo])) {
+            self.$ident.fields_info(func);
         }
 
-        fn fields_mut(&mut self, func: &mut dyn FnMut(&mut [FieldMut])) {
-            self.$ident.fields_mut(func)
+        fn fields(&self, func: &mut dyn FnMut(&[&dyn Reflect])) {
+            self.$ident.fields(func);
+        }
+
+        fn fields_mut(&mut self, func: &mut dyn FnMut(&mut [&mut dyn Reflect])) {
+            self.$ident.fields_mut(func);
         }
 
         fn into_any(self: Box<Self>) -> Box<dyn std::any::Any> {
-            self
+            fyrox::core::reflect::Reflect::into_any(self.$ident.into())
         }
 
         fn as_any(&self, func: &mut dyn FnMut(&dyn std::any::Any)) {
@@ -134,16 +138,16 @@ macro_rules! wrapper_reflect {
             self.$ident.as_hash_map_mut(func)
         }
 
-        fn query_derived_types(&self) -> &'static [core::any::TypeId] {
-            self.$ident.query_derived_types()
-        }
+        // fn query_derived_types(&self) -> &'static [core::any::TypeId] {
+        //     self.$ident.query_derived_types()
+        // }
 
-        fn derived_types() -> &'static [core::any::TypeId] {
-            &[]
-        }
+        // fn derived_types() -> &'static [core::any::TypeId] {
+        //     &[]
+        // }
 
-        fn try_clone_box(&self) -> Option<Box<dyn Reflect>> {
-            Some(Box::new(self.clone()))
-        }
+        // fn try_clone_box(&self) -> Option<Box<dyn Reflect>> {
+        //     Some(Box::new(self.clone()))
+        // }
     };
 }

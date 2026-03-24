@@ -58,10 +58,20 @@ pub(crate) fn load_script(
     if !entry.file_type().is_file() {
         return None;
     }
+    if !entry.file_name().to_string_lossy().ends_with(".lua") {
+        return None;
+    }
 
     Log::info(format!("loading Lua script {:?}", entry.path()));
 
     let metadata = parse_file(entry.path());
+    let Some(metadata) = metadata else {
+        Log::info(format!(
+            "Lua script {:?} doesn't contain Fyrox Lite script definitions",
+            entry.path()
+        ));
+        return None;
+    };
     let metadata = match metadata {
         Ok(it) => it,
         Err(errs) => {

@@ -49,6 +49,8 @@ pub struct CPlugin {
     #[reflect(hidden)]
     pub script_failure_handler: ScriptFailureHandler,
 
+    #[visit(skip)]
+    #[reflect(hidden)]
     pub scripts: RefCell<GlobalScriptList>,
 
     #[visit(skip)]
@@ -269,10 +271,6 @@ impl Visit for GlobalScriptList {
         }
         Ok(())
     }
-}
-
-impl Reflect for GlobalScriptList {
-    wrapper_reflect! {0}
 }
 
 impl DynamicPlugin for CPlugin {

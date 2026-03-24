@@ -30,7 +30,7 @@ pub extern "C" fn fyrox_lite_executor_run() {
     let mut window_attributes = WindowAttributes::default();
     window_attributes.inner_size = Some(LogicalSize::new(1280.0, 720.0).into());
     let mut executor = Executor::from_params(
-        Some(EventLoop::new().unwrap()),
+        EventLoop::new().unwrap(),
         GraphicsContextParams {
             window_attributes,
             vsync: false,

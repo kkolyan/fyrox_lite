@@ -140,11 +140,15 @@ impl Reflect for ExternalScriptProxy {
 
     reflect_base_lite!();
 
-    fn fields_ref(&self, func: &mut dyn FnMut(&[FieldRef])) {
-        self.data.with_script_object(|it| it.fields_ref(func))
+    fn fields_info(&self, func: &mut dyn FnMut(&[FieldInfo])) {
+        self.data.with_script_object(|it| it.fields_info(func))
     }
 
-    fn fields_mut(&mut self, func: &mut dyn FnMut(&mut [FieldMut])) {
+    fn fields(&self, func: &mut dyn FnMut(&[&dyn Reflect])) {
+        self.data.with_script_object(|it| it.fields(func))
+    }
+
+    fn fields_mut(&mut self, func: &mut dyn FnMut(&mut [&mut dyn Reflect])) {
         self.data.with_script_object_mut(|it| it.fields_mut(func))
     }
 

@@ -1,5 +1,5 @@
 use crate::user_script_impl::UserScriptProxy;
-use fyrox::core::reflect::{FieldMut, FieldRef, Reflect};
+use fyrox::core::reflect::{FieldInfo, Reflect};
 use lite_runtime::{reflect_base, reflect_base_lite};
 
 impl Reflect for UserScriptProxy {
@@ -7,17 +7,10 @@ impl Reflect for UserScriptProxy {
 
     reflect_base_lite!();
 
-    fn fields_ref(&self, func: &mut dyn FnMut(&[FieldRef])) {
+    fn fields_info(&self, func: &mut dyn FnMut(&[FieldInfo])) {
         match self {
-            UserScriptProxy::Global(it) => it.fields_ref(func),
-            UserScriptProxy::Node(it) => it.fields_ref(func),
-        }
-    }
-
-    fn fields_mut(&mut self, func: &mut dyn FnMut(&mut [FieldMut])) {
-        match self {
-            UserScriptProxy::Global(it) => it.fields_mut(func),
-            UserScriptProxy::Node(it) => it.fields_mut(func),
+            UserScriptProxy::Global(it) => it.fields_info(func),
+            UserScriptProxy::Node(it) => it.fields_info(func),
         }
     }
 

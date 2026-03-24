@@ -7,6 +7,7 @@ use convert_case::Casing;
 use fyrox::core::log::Log;
 use fyrox::core::pool::Handle;
 use fyrox::core::visitor::Visit;
+use fyrox::core::visitor::VisitError;
 use fyrox::core::visitor::VisitResult;
 use fyrox::core::visitor::Visitor;
 use fyrox::core::Uuid;
@@ -150,21 +151,68 @@ impl<T: Lang> Visit for ScriptObject<T> {
         let reading = visitor.is_reading();
 
         let mut guard = visitor.enter_region(name)?;
+        let it = self;
+        let def = it.def.clone();
 
         // let's store all numbers as str, to allow user easily change type.
         macro_rules! visit_as_str {
             ($var:expr, $field_name:expr, $guard:expr, $ty:ty) => {{
-                let mut s = $var.to_string();
-                let result = s.visit($field_name, &mut $guard);
                 if reading {
-                    *$var = s.parse::<$ty>()?;
+                    let def = def.clone();
+                    let mut action = || {
+                        let mut v = $var.to_string();
+                        if let Ok(_) = v.visit($field_name, &mut $guard) {
+                            *$var = v
+                                .parse::<$ty>()
+                                .map_err(|_err| {
+                                    Log::warn(format!(
+                                        "Failed to initialize {}::{} with {}",
+                                        &def.metadata.class, name, v,
+                                    ));
+                                    VisitError::FieldTypeDoesNotMatch
+                                })
+                                .unwrap();
+                            return Ok(());
+                        }
+                        let mut v = *$var as f32;
+                        if let Ok(_) = v.visit($field_name, &mut $guard) {
+                            *$var = v as $ty;
+                            return Ok(());
+                        }
+                        let mut v = *$var as f64;
+                        if let Ok(_) = v.visit($field_name, &mut $guard) {
+                            *$var = v as $ty;
+                            return Ok(());
+                        }
+                        let mut v = *$var as i16;
+                        if let Ok(_) = v.visit($field_name, &mut $guard) {
+                            *$var = v as $ty;
+                            return Ok(());
+                        }
+                        let mut v = *$var as i32;
+                        if let Ok(_) = v.visit($field_name, &mut $guard) {
+                            *$var = v as $ty;
+                            return Ok(());
+                        }
+                        let mut v = *$var as i64;
+                        if let Ok(_) = v.visit($field_name, &mut $guard) {
+                            *$var = v as $ty;
+                            return Ok(());
+                        }
+                        Log::warn(format!(
+                            "failed to initialize {}::{}",
+                            &def.metadata.class, name
+                        ));
+                        Ok(())
+                    };
+                    action()
+                } else {
+                    let mut v = $var.to_string();
+                    v.visit($field_name, &mut $guard)
                 }
-                result
             }};
         }
 
-        let it = self;
-        let def = it.def.clone();
         for (i, field) in def.metadata.fields.iter().enumerate() {
             let field_name = &field.name.to_case(Case::UpperCamel);
             let result = match &mut it.values[i] {

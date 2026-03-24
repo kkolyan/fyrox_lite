@@ -42,13 +42,13 @@ impl ScriptFailureHandler {
 
     pub fn handle_script_loading_failure(&self, e: &dyn Display) {
         if self.initially_loaded.get() {
-            Log::err("Failed to reload C# script metadata");
+            Log::err("Failed to reload script metadata");
             for line in e.to_string().lines() {
                 Log::err(line);
             }
         } else {
             (self.report_initial_failure)(&format!(
-                "Failed to load C# script metadata:\n{}",
+                "Failed to load script metadata:\n{}",
                 e.to_string()
                     .lines()
                     .map(|it| format!("- {}", it))

@@ -1,7 +1,7 @@
 use crate::bindings_manual::NativeClassId;
 use crate::c_lang::CCompatibleLang;
 use crate::scripted_app::GlobalHasCallback;
-use fyrox::core::reflect::{FieldMut, FieldRef, Reflect};
+use fyrox::core::reflect::{FieldInfo, Reflect};
 use fyrox::core::type_traits::prelude::*;
 use fyrox::core::visitor::{Visit, VisitResult, Visitor};
 use lite_runtime::global_script_object_residence::GlobalScriptResidence;
@@ -27,11 +27,15 @@ impl Reflect for ExternalGlobalScriptProxy {
 
     reflect_base_lite!();
 
-    fn fields_ref(&self, func: &mut dyn FnMut(&[FieldRef])) {
-        self.data.with_script_object(|it| it.fields_ref(func))
+    fn fields_info(&self, func: &mut dyn FnMut(&[FieldInfo])) {
+        self.data.with_script_object(|it| it.fields_info(func))
     }
 
-    fn fields_mut(&mut self, func: &mut dyn FnMut(&mut [FieldMut])) {
+    fn fields(&self, func: &mut dyn FnMut(&[&dyn Reflect])) {
+        self.data.with_script_object(|it| it.fields(func))
+    }
+
+    fn fields_mut(&mut self, func: &mut dyn FnMut(&mut [&mut dyn Reflect])) {
         self.data.with_script_object_mut(|it| it.fields_mut(func))
     }
 

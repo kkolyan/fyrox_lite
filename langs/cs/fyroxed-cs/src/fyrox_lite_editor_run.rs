@@ -83,9 +83,7 @@ fn ensure_cs_profiles(_working_dir: &Path) -> Settings {
             skip_passthrough_marker: false,
         },
     });
-    if loaded {
-        settings.force_save();
-    }
+    settings.force_save();
     settings
 }
 

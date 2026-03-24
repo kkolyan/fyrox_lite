@@ -5,10 +5,11 @@ use crate::user_script_impl::LuaUserScriptMessageEnvelope;
 use fyrox::core::reflect::prelude::*;
 use fyrox::core::type_traits::prelude::*;
 use fyrox::core::visitor::prelude::*;
+use fyrox::core::Downcast;
 use fyrox::script::BaseScript;
 use fyrox::script::ScriptContext;
 use fyrox::script::ScriptTrait;
-use lite_runtime::{reflect_base, reflect_base_lite};
+use lite_runtime::{reflect_base, reflect_base_lite, wrapper_reflect};
 use mlua::{IntoLua, Value};
 use std::any::Any;
 use std::fmt::Debug;
@@ -87,13 +88,15 @@ impl Visit for ExternalScriptProxy {
 impl Reflect for ExternalScriptProxy {
     reflect_base!();
 
-    reflect_base_lite!();
-
-    fn fields_ref(&self, func: &mut dyn FnMut(&[FieldRef])) {
-        self.data.with_script_object(|it| it.fields_ref(func))
+    fn fields_info(&self, func: &mut dyn FnMut(&[FieldInfo])) {
+        self.data.with_script_object(|it| it.fields_info(func))
     }
 
-    fn fields_mut(&mut self, func: &mut dyn FnMut(&mut [FieldMut])) {
+    fn fields(&self, func: &mut dyn FnMut(&[&dyn Reflect])) {
+        self.data.with_script_object(|it| it.fields(func))
+    }
+
+    fn fields_mut(&mut self, func: &mut dyn FnMut(&mut [&mut dyn Reflect])) {
         self.data.with_script_object_mut(|it| it.fields_mut(func))
     }
 

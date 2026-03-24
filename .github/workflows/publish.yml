@@ -130,6 +130,11 @@ jobs:
           name: package-macos
           path: .
       - run: |
-          gh release create nightly-$(date +%F)-$(echo "${{ github.sha }}" | cut -c1-7) *.zip
+          cargo generate-lockfile --manifest-path engine/fyrox/Cargo.toml
+          ENGINE_VERSION=$(cargo pkgid --manifest-path engine/fyrox/Cargo.toml | sed 's/.*#//')
+          
+          VERSION=$(cargo pkgid --manifest-path api/fyrox-lite/Cargo.toml | sed 's/.*#//')
+          
+          gh release create v$VERSION-nightly-$(date +%F)-$ENGINE_VERSION-$(echo "${{ github.sha }}" | cut -c1-7) *.zip
         env:
           GH_TOKEN: ${{ github.token }}

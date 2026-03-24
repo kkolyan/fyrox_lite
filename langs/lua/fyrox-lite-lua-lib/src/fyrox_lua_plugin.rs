@@ -130,7 +130,7 @@ impl Plugin for LuaPlugin {
         }
 
         if errors.is_empty() {
-            Log::info("C# script metadata loaded successfully");
+            Log::info("Lua script metadata loaded successfully");
             *self.script_initializers.borrow_mut() = initializers;
             self.script_failure_handler.initially_loaded.set(true);
         } else {

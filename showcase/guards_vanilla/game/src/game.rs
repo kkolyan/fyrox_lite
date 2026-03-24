@@ -1,8 +1,16 @@
 //! Game project.
+
+use crate::beacon::Beacon;
+use crate::bullet::Bullet;
+use crate::guard::Guard;
+use crate::guard_chief::GuardChief;
+use crate::player::Player;
 use fyrox::core::color::Color;
+use fyrox::event::{Event, WindowEvent};
 use fyrox::gui::brush::Brush;
 use fyrox::gui::text::TextBuilder;
 use fyrox::gui::widget::WidgetBuilder;
+use fyrox::keyboard::{KeyCode, PhysicalKey};
 pub use fyrox::plugin::Plugin;
 use fyrox::{
     core::{
@@ -13,12 +21,7 @@ use fyrox::{
     scene::node::Node,
     script::ScriptTrait,
 };
-
-use crate::beacon::Beacon;
-use crate::bullet::Bullet;
-use crate::guard::Guard;
-use crate::guard_chief::GuardChief;
-use crate::player::Player;
+use std::process::exit;
 
 #[derive(Visit, Reflect, Debug, Default, Clone)]
 pub struct Game {
@@ -47,6 +50,19 @@ impl Plugin for Game {
         )
         .with_font_size(40.0.into())
         .build(&mut context.user_interfaces.first_mut().build_ctx());
+    }
+
+    fn on_os_event(&mut self, event: &Event<()>, context: PluginContext) {
+        if let Event::WindowEvent { event, .. } = event {
+            if let WindowEvent::KeyboardInput { event, .. } = event {
+                if let PhysicalKey::Code(code) = event.physical_key {
+                    if KeyCode::Escape == code {
+                        println!("User requested exit");
+                        exit(0);
+                    }
+                }
+            }
+        }
     }
 
     fn update(&mut self, #[allow(unused_variables)] context: &mut PluginContext) {
